@@ -18,7 +18,8 @@ const getConfig = async () => {
     ]);
 
     return {
-        apiKey: apiKey || "",
+        // PASTE YOUR API KEY HERE IF THE CHROME EXTENSION BOX DOESNT WORK
+        apiKey: apiKey || "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",
         model: model || "text-davinci-002",
         temperature: temperature || 0.7,
         maxTokens: maxTokens || 256,
@@ -29,8 +30,8 @@ const getConfig = async () => {
 };
 
 const getNextTokens = async (prompt, suffix) => {
-    const url = "https://api.openai.com/v1/edit";
-
+    const url = "https://api.openai.com/v1/completions";
+    console.log(prompt,suffix)
     // Get config from storage
     const {
         apiKey,
@@ -77,11 +78,11 @@ const getNextTokens = async (prompt, suffix) => {
 };
 
 chrome.runtime.onMessage.addListener(async (request) => {
-    if (request.text != null) {
+    if (request.prompt != null) {
         // Communicate with content script to get the current text
         // I think this is where we can add the variables from the buttons
-        const prompt = request.text;
-        const suffix = request.suffix;
+        const prompt = request.prompt;
+        const suffix = "";
         const completedText = await getNextTokens(prompt, suffix);
 
         // Communicate with content script to update the text

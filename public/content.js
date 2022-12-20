@@ -125,7 +125,7 @@ const handlePromptBoxClick = (e) => {
     }
 
     if (e.target.classList.contains("write-button")) {
-        handleWriteButtonClick()
+        handleWriteButtonClick(e)
     }
 }
 
