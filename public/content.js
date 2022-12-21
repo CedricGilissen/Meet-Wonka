@@ -4,8 +4,7 @@ var ACTIVE_EMAIL_DIV = null;
 const handleWriteButtonClick = (e) => {
     // Extract the text from the email
     let { originalEmail, currentEmail } = extractText();
-    console.log(currentEmail);
-    const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.getElementsByClassName("button-container")[0]);
+    const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.getElementsByClassName("button-container")[0]);
 
     ACTIVE_EMAIL_DIV.focus();
     // TODO Need to make a new animation for this
@@ -15,16 +14,39 @@ const handleWriteButtonClick = (e) => {
 }
 
 // Takes the text from the gmail box
-// TODO: Extract originalEmail as well.
 const extractText = () => {
+    // first check if the email already holds a gmail_quote div
+    var originalEmailElement = ACTIVE_EMAIL_DIV.parentNode.querySelector(".gmail_quote")
+    if (originalEmailElement != null){
+        // get the original email text (no nested solution for now)
+        var originalEmailText = originalEmailElement.childNodes[1].innerText
+
+        var currentEmailText = ""
+        // get the current email text
+        var currentEmailElements = ACTIVE_EMAIL_DIV.childNodes
+        for (const node of currentEmailElements) {
+            if (node.nodeName === "DIV" & !node.classList.contains("gmail_quote")){
+                currentEmailText += node.innerText
+                currentEmailText += "\n"
+            }
+        }
+        return {"originalEmail":originalEmailText, "currentEmail":currentEmailText}
+    }
+
+    // then check if there is a hidden reply behind the three dots
+    var threeDotsElement = ACTIVE_EMAIL_DIV.querySelector(".uC")
+    if (threeDotsElement != null){
+        // TODO. For now, just treat as no reply
+    }
+
     // Define a variable to hold the extracted text
-    var txt = ACTIVE_EMAIL_DIV.innerText;
+    var currentEmail = ACTIVE_EMAIL_DIV.innerText;
     // Replace any consecutive whitespace characters with a single space
-    txt = txt.replace(/(\s)+/g, "$1");
+    currentEmail = currentEmail.replace(/(\s)+/g, "$1");
     // Remove leading and trailing whitespace
-    txt = txt.trim();
+    currentEmail = currentEmail.trim();
     // Return the entire text as a single string
-    return { originalEmail: ' ', currentEmail: txt };
+    return { "originalEmail": ' ', "currentEmail": currentEmail };
 };
 
 const designPrompt = (originalEmail, currentEmail, promptbox) => {
