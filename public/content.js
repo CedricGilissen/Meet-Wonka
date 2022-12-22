@@ -28,6 +28,14 @@ const extractText = () => {
 };
 
 const designPrompt = (originalEmail, currentEmail, promptbox) => {
+
+    let prompt = "Write a professional email that is appropriate for the workplace based on the following information: ";
+
+    // Include the currentEmail text in the prompt
+    prompt += currentEmail;
+
+    return prompt;
+};
     /*
     REMARK: This is where you can design the prompt Cédric. 
     @params: 
@@ -41,8 +49,8 @@ const designPrompt = (originalEmail, currentEmail, promptbox) => {
     @Cédric: You can use the promptbox variable to retreive the current state of the emojis. 
     It's a good challenge for you on how to work with DOM Objects! Good luck :) :)
     */
-    return "Write an email for me:";
-}
+    //return "Write an email for me:";
+//}
 
 // Insert text as HTML
 const insertText = (text) => {
