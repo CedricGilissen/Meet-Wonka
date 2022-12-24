@@ -2,7 +2,7 @@
   display: block
 }
 
-.button-container {
+.promptbox {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -11,7 +11,7 @@
   margin-bottom: 10px;
 }
 
-.button-container button {
+.promptbox button {
   font-size: 16px;
   height: 32px;
   padding: 4px 8px;

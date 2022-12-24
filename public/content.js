@@ -4,7 +4,9 @@ var ACTIVE_EMAIL_DIV = null;
 const handleWriteButtonClick = (e) => {
     // Extract the text from the email
     let { originalEmail, currentEmail } = extractText();
-    const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.querySelector(".button-container"));
+    const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.querySelector(".promptbox"));
+
+    console.log(prompt)
 
     ACTIVE_EMAIL_DIV.focus();
     // TODO Need to make a new animation for this
@@ -17,7 +19,7 @@ const handleWriteButtonClick = (e) => {
 const extractText = () => {
     // first check if the email already holds a gmail_quote div
     var originalEmailElement = ACTIVE_EMAIL_DIV.parentNode.querySelector(".gmail_quote")
-    if (originalEmailElement != null){
+    if (originalEmailElement != null) {
         // get the original email text (no nested solution for now)
         var originalEmailText = originalEmailElement.childNodes[1].innerText
 
@@ -25,17 +27,17 @@ const extractText = () => {
         // get the current email text
         var currentEmailElements = ACTIVE_EMAIL_DIV.childNodes
         for (const node of currentEmailElements) {
-            if (node.nodeName === "DIV" & !node.classList?.contains("gmail_quote")){
+            if (node.nodeName === "DIV" & !node.classList?.contains("gmail_quote")) {
                 currentEmailText += node.innerText
                 currentEmailText += "\n"
             }
         }
-        return {"originalEmail":originalEmailText, "currentEmail":currentEmailText}
+        return { "originalEmail": originalEmailText, "currentEmail": currentEmailText }
     }
 
     // then check if there is a hidden reply behind the three dots
     var threeDotsElement = ACTIVE_EMAIL_DIV.querySelector(".uC")
-    if (threeDotsElement != null){
+    if (threeDotsElement != null) {
         // TODO. For now, just treat as no reply
     }
 
@@ -46,70 +48,21 @@ const extractText = () => {
     // Remove leading and trailing whitespace
     currentEmail = currentEmail.trim();
     // Return the entire text as a single string
-    return { "originalEmail": ' ', "currentEmail": currentEmail };
+    return { "originalEmail": "", "currentEmail": currentEmail };
 };
 
 const designPrompt = (originalEmail, currentEmail, promptbox) => {
-    const casualButton = promptbox.querySelector(".emoji-button[promptValue='casual']");
-    const formalButton = promptbox.querySelector(".emoji-button[promptValue='formal']");
-    const positiveButton = promptbox.querySelector(".emoji-button[promptValue='positive']");
-    const negativeButton = promptbox.querySelector(".emoji-button[promptValue='negative']");
-    const enthousiasticButton = promptbox.querySelector(".emoji-button[promptValue='enthousiastic']");
-    const neutralButton = promptbox.querySelector(".emoji-button[promptValue='neutral']");
-    const annoyedButton = promptbox.querySelector(".emoji-button[promptValue='annoyed']");
+    function getPromptValue(promptbox, category) {
+        return promptbox.querySelector(`.emoji-button.clicked[category=${category}]`).getAttribute("promptValue")
+    }
 
-    let prompt = "Write a ";
-
-    // casual or formal button
-    if (casualButton.classList.contains("clicked")) {
-     prompt += "casual, ";
-    } else if (formalButton.classList.contains("clicked")) {
-        prompt += "formal, ";
-       }
-
-    // distinguish between emotions
-    if (enthousiasticButton.classList.contains("clicked")) {
-     prompt += "enthousiastic ";
-    } else if (neutralButton.classList.contains("clicked")) {
-     prompt += "neutral ";
-    } else if (annoyedButton.classList.contains("clicked")) {
-     prompt += "annoyed ";
-        }
-    // positive or negative button
-    if (positiveButton.classList.contains("clicked")) {
-     prompt += "and positive ";
-    } else if (negativeButton.classList.contains("clicked")) {
-         prompt += " and negative ";
-          }
-    // distinguish between reply to and write new email
-    if (originalEmail === "") {
-     prompt += "email ";
-    } else {
-         prompt += " reply to " + originalEmail;
-        }
-  
-    // Include current email if there is one
-    if (currentEmail != "") {
-     prompt += " the email should include " + currentEmail;
-        }
-
+    var prompt = `Write a ${getPromptValue(promptbox, "formality")}, ${getPromptValue(promptbox, "emotion")}, ${getPromptValue(promptbox, "confirmation")} ${originalEmail === "" ? "Email." : "reply to the following Email:"} 
+${originalEmail}
+${currentEmail.trim() === "" ? "" : "The mail should include the following information:"}
+${currentEmail}
+`
     return prompt;
 };
-    /*
-    REMARK: This is where you can design the prompt Cédric. 
-    @params: 
-    * originalEmail: string representing the email you're replying to. empty string ("") if the email is the first in the chain.
-        REMARK: Currently only the "currentEmail" value will be populated, i have to find out how to retrieve the originalEmail
-        if it is not shown in the draft, and distinguish between current & original email if it is
-    * currentEmail: actual text representing the email you're currently writing (or maybe sometimes the prompt the user gives instead of actually writing the email?)
-    * promptbox: Element object containing the stateful promptbox
-    @returns: A string containing the prompt we will send to the API Endpoint!
-
-    @Cédric: You can use the promptbox variable to retreive the current state of the emojis. 
-    It's a good challenge for you on how to work with DOM Objects! Good luck :) :)
-    */
-    //return "Write an email for me:";
-//}
 
 // Insert text as HTML
 const insertText = (text) => {
@@ -173,7 +126,7 @@ const setWriteButtonLoading = (writeButton) => {
 };
 
 const setWriteButtonError = () => {
-    const button = document.getElementById("write-button");
+    const button = ACTIVE_EMAIL_DIV.querySelector(".write-button");
     button.innerHTML = "Error";
 
     // Remove all classes
@@ -184,7 +137,7 @@ const setWriteButtonError = () => {
 };
 
 const setWriteButtonLoaded = () => {
-    const button = document.getElementById("write-button");
+    const button = ACTIVE_EMAIL_DIV.querySelector("write-button");
 
     // Remove all classes
     button.classList.remove("write-button-loading");
@@ -196,40 +149,12 @@ const setWriteButtonLoaded = () => {
 const handlePromptBoxClick = (e) => {
 
     if (e.target.classList.contains("emoji-button")) {
-        e.target.classList.toggle('clicked');
-
-        const casualButton = document.querySelector(".emoji-button[promptValue='casual']");
-        const formalButton = document.querySelector(".emoji-button[promptValue='formal']");
-        const positiveButton = document.querySelector(".emoji-button[promptValue='positive']");
-        const negativeButton = document.querySelector(".emoji-button[promptValue='negative']");
-        const enthousiasticButton = document.querySelector(".emoji-button[promptValue='enthousiastic']");
-        const neutralButton = document.querySelector(".emoji-button[promptValue='neutral']");
-        const annoyedButton = document.querySelector(".emoji-button[promptValue='annoyed']");
-
-        if (e.target.getAttribute("promptValue") === "negative") {
-            positiveButton.classList.remove("clicked");
-          } else if (e.target.getAttribute("promptValue") === "positive") {
-            negativeButton.classList.remove("clicked");
-          }
-
-        if (e.target.getAttribute("promptValue") === "casual") {
-            formalButton.classList.remove("clicked");
-          } else if (e.target.getAttribute("promptValue") === "formal") {
-            casualButton.classList.remove("clicked");
-          }
-
-        if (e.target.getAttribute("promptValue") === "enthousiastic") {
-            neutralButton.classList.remove("clicked");
-            annoyedButton.classList.remove("clicked");
-          } else if (e.target.getAttribute("promptValue") === "neutral") {
-            enthousiasticButton.classList.remove("clicked");
-            annoyedButton.classList.remove("clicked");
-          } else if (e.target.getAttribute("promptValue") === "annoyed") {
-            enthousiasticButton.classList.remove("clicked");
-            neutralButton.classList.remove("clicked");
+        const promptbox = ACTIVE_EMAIL_DIV.parentElement.querySelector(".promptbox");
+        const buttons = promptbox.querySelectorAll(`.emoji-button[category=${e.target.getAttribute("category")}]`);
+        for (const button of buttons) {
+            button.classList.remove("clicked");
         }
-        return; 
-
+        e.target.classList.toggle("clicked");
     }
 
     if (e.target.classList.contains("write-button")) {
@@ -245,13 +170,13 @@ const handleClick = (e) => {
             ACTIVE_EMAIL_DIV = div;
 
             // If target is inside a promptbox, handle the promptbox click
-            if (e.target.closest('#promptbox') != null) {
+            if (e.target.closest('.promptbox') != null) {
                 handlePromptBoxClick(e)
                 return;
             }
 
             // If element is in editable parent without promptbox, create a new promptbox
-            if (div.parentNode.querySelector('#promptbox') == null) {
+            if (div.parentNode.querySelector('.promptbox') == null) {
                 createPromptBox();
                 return;
             }
