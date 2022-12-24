@@ -18,11 +18,10 @@ const getConfig = async () => {
     ]);
 
     return {
-        // PASTE YOUR API KEY HERE IF THE CHROME EXTENSION BOX DOESNT WORK
-        apiKey: apiKey || "",
-        model: model || "text-davinci-002",
-        temperature: temperature || 0.7,
-        maxTokens: maxTokens || 256,
+        apiKey: apiKey || "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",
+        model: model || "text-davinci-003",
+        temperature: temperature || 0.4,
+        maxTokens: maxTokens || 856,
         topP: topP || 1,
         frequencyPenalty: frequencyPenalty || 0,
         presencePenalty: presencePenalty || 0,

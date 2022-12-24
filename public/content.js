@@ -4,7 +4,7 @@ var ACTIVE_EMAIL_DIV = null;
 const handleWriteButtonClick = (e) => {
     // Extract the text from the email
     let { originalEmail, currentEmail } = extractText();
-    const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.getElementsByClassName("button-container")[0]);
+    const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.querySelector(".button-container"));
 
     ACTIVE_EMAIL_DIV.focus();
     // TODO Need to make a new animation for this
@@ -50,6 +50,51 @@ const extractText = () => {
 };
 
 const designPrompt = (originalEmail, currentEmail, promptbox) => {
+    const casualButton = promptbox.querySelector(".emoji-button[promptValue='casual']");
+    const formalButton = promptbox.querySelector(".emoji-button[promptValue='formal']");
+    const positiveButton = promptbox.querySelector(".emoji-button[promptValue='positive']");
+    const negativeButton = promptbox.querySelector(".emoji-button[promptValue='negative']");
+    const enthousiasticButton = promptbox.querySelector(".emoji-button[promptValue='enthousiastic']");
+    const neutralButton = promptbox.querySelector(".emoji-button[promptValue='neutral']");
+    const annoyedButton = promptbox.querySelector(".emoji-button[promptValue='annoyed']");
+
+    let prompt = "Write a ";
+
+    // casual or formal button
+    if (casualButton.classList.contains("clicked")) {
+     prompt += "casual, ";
+    } else if (formalButton.classList.contains("clicked")) {
+        prompt += "formal, ";
+       }
+
+    // distinguish between emotions
+    if (enthousiasticButton.classList.contains("clicked")) {
+     prompt += "enthousiastic ";
+    } else if (neutralButton.classList.contains("clicked")) {
+     prompt += "neutral ";
+    } else if (annoyedButton.classList.contains("clicked")) {
+     prompt += "annoyed ";
+        }
+    // positive or negative button
+    if (positiveButton.classList.contains("clicked")) {
+     prompt += "and positive ";
+    } else if (negativeButton.classList.contains("clicked")) {
+         prompt += " and negative ";
+          }
+    // distinguish between reply to and write new email
+    if (originalEmail === "") {
+     prompt += "email ";
+    } else {
+         prompt += " reply to " + originalEmail;
+        }
+  
+    // Include current email if there is one
+    if (currentEmail != "") {
+     prompt += " the email should include " + currentEmail;
+        }
+
+    return prompt;
+};
     /*
     REMARK: This is where you can design the prompt Cédric. 
     @params: 
@@ -63,8 +108,8 @@ const designPrompt = (originalEmail, currentEmail, promptbox) => {
     @Cédric: You can use the promptbox variable to retreive the current state of the emojis. 
     It's a good challenge for you on how to work with DOM Objects! Good luck :) :)
     */
-    return "Write an email for me:";
-}
+    //return "Write an email for me:";
+//}
 
 // Insert text as HTML
 const insertText = (text) => {
@@ -149,9 +194,42 @@ const setWriteButtonLoaded = () => {
 };
 
 const handlePromptBoxClick = (e) => {
+
     if (e.target.classList.contains("emoji-button")) {
         e.target.classList.toggle('clicked');
-        return;
+
+        const casualButton = document.querySelector(".emoji-button[promptValue='casual']");
+        const formalButton = document.querySelector(".emoji-button[promptValue='formal']");
+        const positiveButton = document.querySelector(".emoji-button[promptValue='positive']");
+        const negativeButton = document.querySelector(".emoji-button[promptValue='negative']");
+        const enthousiasticButton = document.querySelector(".emoji-button[promptValue='enthousiastic']");
+        const neutralButton = document.querySelector(".emoji-button[promptValue='neutral']");
+        const annoyedButton = document.querySelector(".emoji-button[promptValue='annoyed']");
+
+        if (e.target.getAttribute("promptValue") === "negative") {
+            positiveButton.classList.remove("clicked");
+          } else if (e.target.getAttribute("promptValue") === "positive") {
+            negativeButton.classList.remove("clicked");
+          }
+
+        if (e.target.getAttribute("promptValue") === "casual") {
+            formalButton.classList.remove("clicked");
+          } else if (e.target.getAttribute("promptValue") === "formal") {
+            casualButton.classList.remove("clicked");
+          }
+
+        if (e.target.getAttribute("promptValue") === "enthousiastic") {
+            neutralButton.classList.remove("clicked");
+            annoyedButton.classList.remove("clicked");
+          } else if (e.target.getAttribute("promptValue") === "neutral") {
+            enthousiasticButton.classList.remove("clicked");
+            annoyedButton.classList.remove("clicked");
+          } else if (e.target.getAttribute("promptValue") === "annoyed") {
+            enthousiasticButton.classList.remove("clicked");
+            neutralButton.classList.remove("clicked");
+        }
+        return; 
+
     }
 
     if (e.target.classList.contains("write-button")) {
