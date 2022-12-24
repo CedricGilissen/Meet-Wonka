@@ -1,6 +1,10 @@
 // Define a global variable pointing to the active email div
 var ACTIVE_EMAIL_DIV = null;
 
+/**
+ * Handle the click event on the write button
+ * @param {Event} e 
+ */
 const handleWriteButtonClick = (e) => {
     // Extract the text from the email
     let { originalEmail, currentEmail } = extractText();
@@ -15,7 +19,10 @@ const handleWriteButtonClick = (e) => {
     chrome.runtime.sendMessage({ prompt })
 }
 
-// Takes the text from the gmail box
+/**
+ * Get the text from the active email div, split up in original email (the quote part) and current email (the part you're writing)
+ * @returns {Object} {originalEmail: String, currentEmail: String}
+ */
 const extractText = () => {
     // first check if the email already holds a gmail_quote div
     var originalEmailElement = ACTIVE_EMAIL_DIV.parentNode.querySelector(".gmail_quote")
@@ -51,6 +58,14 @@ const extractText = () => {
     return { "originalEmail": "", "currentEmail": currentEmail };
 };
 
+/**
+ * This function takes the original email, the current email, and the promptbox and returns a string that is the prompt we will send to the API Endpoint.
+ * 
+ * @param {String} originalEmail: string representing the email you're replying to. empty string ("") if the email is the first in the chain.
+ * @param {String} currentEmail: actual text representing the email you're currently writing (or maybe sometimes the prompt the user gives instead of actually writing the email?)
+ * @param {Node} promptbox: Element object containing the stateful promptbox
+ * @return {String}: A string containing the prompt we will send to the API Endpoint!
+ */
 const designPrompt = (originalEmail, currentEmail, promptbox) => {
     function getPromptValue(promptbox, category) {
         return promptbox.querySelector(`.emoji-button.clicked[category=${category}]`).getAttribute("promptValue")
@@ -64,7 +79,10 @@ ${currentEmail}
     return prompt;
 };
 
-// Insert text as HTML
+/**
+ * Insert the text into the active email div
+ * @param {String} text 
+ */
 const insertText = (text) => {
     // Remove all direct children div's from ACTIVE_EMAIL_DIV that don't have the class "gmail_quote"
     for (const child of ACTIVE_EMAIL_DIV.children) {
@@ -114,7 +132,9 @@ const getAllEditable = () => {
     return document.querySelectorAll("div[contenteditable=true]");
 };
 
-//changed this to button 9 to see if it works on my button
+/**
+ * Set the write button of the current active email div to a loading state
+ */
 const setWriteButtonLoading = (writeButton) => {
     writeButton.innerHTML = "Loading";
 
@@ -125,6 +145,9 @@ const setWriteButtonLoading = (writeButton) => {
     writeButton.classList.add("write-button-loading");
 };
 
+/**
+ * Set the write button of the current active email div to an error state
+ */
 const setWriteButtonError = () => {
     const button = ACTIVE_EMAIL_DIV.querySelector(".write-button");
     button.innerHTML = "Error";
