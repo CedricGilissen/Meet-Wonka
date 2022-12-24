@@ -10,7 +10,7 @@ const handleWriteButtonClick = (e) => {
     // TODO Need to make a new animation for this
     setWriteButtonLoading(e.target);
     // This sends the prompt to the OpenAI
-    chrome.runtime.sendMessage({ prompt });
+    chrome.runtime.sendMessage({ prompt })
 }
 
 // Takes the text from the gmail box
@@ -70,6 +70,7 @@ const designPrompt = (originalEmail, currentEmail, promptbox) => {
 const insertText = (text) => {
     // Get the entire text from the Gmail box
     const txt = extractText();
+    console.log(txt)
 
     // Split the text at newline characters
     const spl_text = text.split("\n");
@@ -92,6 +93,8 @@ const insertText = (text) => {
 };
 
 const createPromptBox = async () => {
+    ACTIVE_EMAIL_DIV.closest(".et").querySelectorAll(".ajT")[0].click()
+
     fetch(chrome.runtime.getURL("promptbox.html")).then(res => res.text()).then(promptboxHTML => {
         var promptbox = new DOMParser().parseFromString(promptboxHTML, "text/html").body.childNodes[0]
 
