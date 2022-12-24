@@ -91,25 +91,19 @@ const insertText = (text) => {
         }
     }
 
-    // Split the text at newline characters
     const spl_text = text.split("\n");
-    // Define a variable to hold the resulting HTML string
     var res = "";
 
-    // Further formatting of the HTML
     for (const s of spl_text) {
         if (s === "") {
-            // Add a white line if there is no text
             res += "<div><br></div>";
         } else {
-            // Add the text if there is text
             res += "<div>" + s + "</div>";
         }
     }
 
     // convert the HTML string to a DOM object and insert it into the email
     const dom = new DOMParser().parseFromString(res, "text/html");
-    console.log(dom.body.childNodes)
     ACTIVE_EMAIL_DIV.prepend(...dom.body.childNodes);
 };
 
@@ -149,7 +143,7 @@ const setWriteButtonLoading = (writeButton) => {
  * Set the write button of the current active email div to an error state
  */
 const setWriteButtonError = () => {
-    const button = ACTIVE_EMAIL_DIV.querySelector(".write-button");
+    const button = ACTIVE_EMAIL_DIV.parentElement.querySelector(".write-button");
     button.innerHTML = "Error";
 
     // Remove all classes
@@ -160,7 +154,7 @@ const setWriteButtonError = () => {
 };
 
 const setWriteButtonLoaded = () => {
-    const button = ACTIVE_EMAIL_DIV.querySelector("write-button");
+    const button = ACTIVE_EMAIL_DIV.parentElement.querySelector("write-button");
 
     // Remove all classes
     button.classList.remove("write-button-loading");
@@ -214,8 +208,8 @@ document.body.addEventListener("click", handleClick);
 chrome.runtime.onMessage.addListener((request) => {
     if (request.generate) {
         if (request.generate.error) {
-            setWriteButtonError();
             console.error(request.generate.error.message);
+            setWriteButtonError();
             insertText(request.generate.error.message);
         } else if (request.generate.text) {
             setWriteButtonLoaded();
