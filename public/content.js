@@ -25,7 +25,7 @@ const extractText = () => {
         // get the current email text
         var currentEmailElements = ACTIVE_EMAIL_DIV.childNodes
         for (const node of currentEmailElements) {
-            if (node.nodeName === "DIV" & !node.classList.contains("gmail_quote")){
+            if (node.nodeName === "DIV" & !node.classList?.contains("gmail_quote")){
                 currentEmailText += node.innerText
                 currentEmailText += "\n"
             }
@@ -68,9 +68,12 @@ const designPrompt = (originalEmail, currentEmail, promptbox) => {
 
 // Insert text as HTML
 const insertText = (text) => {
-    // Get the entire text from the Gmail box
-    const txt = extractText();
-    console.log(txt)
+    // Remove all direct children div's from ACTIVE_EMAIL_DIV that don't have the class "gmail_quote"
+    for (const child of ACTIVE_EMAIL_DIV.children) {
+        if (child.nodeName === "DIV" && !child.classList.contains("gmail_quote")) {
+            child.remove();
+        }
+    }
 
     // Split the text at newline characters
     const spl_text = text.split("\n");
@@ -88,8 +91,10 @@ const insertText = (text) => {
         }
     }
 
-    // Insert text at the beginning or end of the existing text in the Gmail box
-    ACTIVE_EMAIL_DIV.innerHTML = txt + res;
+    // convert the HTML string to a DOM object and insert it into the email
+    const dom = new DOMParser().parseFromString(res, "text/html");
+    console.log(dom.body.childNodes)
+    ACTIVE_EMAIL_DIV.prepend(...dom.body.childNodes);
 };
 
 const createPromptBox = async () => {
