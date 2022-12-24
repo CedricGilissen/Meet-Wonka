@@ -4,27 +4,49 @@ var ACTIVE_EMAIL_DIV = null;
 const handleWriteButtonClick = (e) => {
     // Extract the text from the email
     let { originalEmail, currentEmail } = extractText();
-    console.log(currentEmail);
     const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.querySelector(".button-container"));
 
     ACTIVE_EMAIL_DIV.focus();
     // TODO Need to make a new animation for this
     setWriteButtonLoading(e.target);
     // This sends the prompt to the OpenAI
-    chrome.runtime.sendMessage({ prompt });
+    chrome.runtime.sendMessage({ prompt })
 }
 
 // Takes the text from the gmail box
-// TODO: Extract originalEmail as well.
 const extractText = () => {
+    // first check if the email already holds a gmail_quote div
+    var originalEmailElement = ACTIVE_EMAIL_DIV.parentNode.querySelector(".gmail_quote")
+    if (originalEmailElement != null){
+        // get the original email text (no nested solution for now)
+        var originalEmailText = originalEmailElement.childNodes[1].innerText
+
+        var currentEmailText = ""
+        // get the current email text
+        var currentEmailElements = ACTIVE_EMAIL_DIV.childNodes
+        for (const node of currentEmailElements) {
+            if (node.nodeName === "DIV" & !node.classList?.contains("gmail_quote")){
+                currentEmailText += node.innerText
+                currentEmailText += "\n"
+            }
+        }
+        return {"originalEmail":originalEmailText, "currentEmail":currentEmailText}
+    }
+
+    // then check if there is a hidden reply behind the three dots
+    var threeDotsElement = ACTIVE_EMAIL_DIV.querySelector(".uC")
+    if (threeDotsElement != null){
+        // TODO. For now, just treat as no reply
+    }
+
     // Define a variable to hold the extracted text
-    var txt = ACTIVE_EMAIL_DIV.innerText;
+    var currentEmail = ACTIVE_EMAIL_DIV.innerText;
     // Replace any consecutive whitespace characters with a single space
-    txt = txt.replace(/(\s)+/g, "$1");
+    currentEmail = currentEmail.replace(/(\s)+/g, "$1");
     // Remove leading and trailing whitespace
-    txt = txt.trim();
+    currentEmail = currentEmail.trim();
     // Return the entire text as a single string
-    return { originalEmail: ' ', currentEmail: txt };
+    return { "originalEmail": ' ', "currentEmail": currentEmail };
 };
 
 const designPrompt = (originalEmail, currentEmail, promptbox) => {
@@ -91,8 +113,12 @@ const designPrompt = (originalEmail, currentEmail, promptbox) => {
 
 // Insert text as HTML
 const insertText = (text) => {
-    // Get the entire text from the Gmail box
-    const txt = extractText();
+    // Remove all direct children div's from ACTIVE_EMAIL_DIV that don't have the class "gmail_quote"
+    for (const child of ACTIVE_EMAIL_DIV.children) {
+        if (child.nodeName === "DIV" && !child.classList.contains("gmail_quote")) {
+            child.remove();
+        }
+    }
 
     // Split the text at newline characters
     const spl_text = text.split("\n");
@@ -110,11 +136,15 @@ const insertText = (text) => {
         }
     }
 
-    // Insert text at the beginning or end of the existing text in the Gmail box
-    ACTIVE_EMAIL_DIV.innerHTML = txt + res;
+    // convert the HTML string to a DOM object and insert it into the email
+    const dom = new DOMParser().parseFromString(res, "text/html");
+    console.log(dom.body.childNodes)
+    ACTIVE_EMAIL_DIV.prepend(...dom.body.childNodes);
 };
 
 const createPromptBox = async () => {
+    ACTIVE_EMAIL_DIV.closest(".et").querySelectorAll(".ajT")[0].click()
+
     fetch(chrome.runtime.getURL("promptbox.html")).then(res => res.text()).then(promptboxHTML => {
         var promptbox = new DOMParser().parseFromString(promptboxHTML, "text/html").body.childNodes[0]
 

@@ -29,6 +29,13 @@ const getConfig = async () => {
 };
 
 const getNextTokens = async (prompt, suffix) => {
+    if (prompt.startsWith("testMail")){
+        return {text: `Hoi,
+        Waar ben ju momenteel zoal mee bezig?
+        Vriendelijke groeten,
+        Wim`}
+    }
+
     const url = "https://api.openai.com/v1/completions";
     console.log(prompt,suffix)
     // Get config from storage
