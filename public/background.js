@@ -18,7 +18,7 @@ const getConfig = async () => {
     ]);
 
     return {
-        apiKey: apiKey || "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",
+        apiKey: apiKey || "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",
         model: model || "text-davinci-003",
         temperature: temperature || 0.4,
         maxTokens: maxTokens || 856,
