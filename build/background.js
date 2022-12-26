@@ -18,10 +18,10 @@ const getConfig = async () => {
     ]);
 
     return {
-        apiKey: apiKey || "",
-        model: model || "text-davinci-002",
-        temperature: temperature || 0.7,
-        maxTokens: maxTokens || 256,
+        apiKey: apiKey || "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",
+        model: model || "text-davinci-003",
+        temperature: temperature || 0.4,
+        maxTokens: maxTokens || 856,
         topP: topP || 1,
         frequencyPenalty: frequencyPenalty || 0,
         presencePenalty: presencePenalty || 0,
@@ -29,8 +29,15 @@ const getConfig = async () => {
 };
 
 const getNextTokens = async (prompt, suffix) => {
-    const url = "https://api.openai.com/v1/completions";
+    if (prompt.startsWith("testMail")){
+        return {text: `Hoi,
+        Waar ben ju momenteel zoal mee bezig?
+        Vriendelijke groeten,
+        Wim`}
+    }
 
+    const url = "https://api.openai.com/v1/completions";
+    console.log(prompt,suffix)
     // Get config from storage
     const {
         apiKey,
@@ -77,14 +84,16 @@ const getNextTokens = async (prompt, suffix) => {
 };
 
 chrome.runtime.onMessage.addListener(async (request) => {
-    if (request.text != null) {
+    if (request.prompt != null) {
         // Communicate with content script to get the current text
-        const [prompt, suffix] = request.text;
-        const nextTokens = await getNextTokens(prompt, suffix);
+        // I think this is where we can add the variables from the buttons
+        const prompt = request.prompt;
+        const suffix = "";
+        const completedText = await getNextTokens(prompt, suffix);
 
         // Communicate with content script to update the text
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { generate: nextTokens });
+            chrome.tabs.sendMessage(tabs[0].id, { generate: completedText });
         });
     }
 });

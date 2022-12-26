@@ -21,7 +21,7 @@ function App() {
     const [loggedIn, setLoggedIn] = useState(true);
     const [loaded, setLoaded] = useState(false);
     const [config, setConfig] = useState<ConfigState>({
-        apiKey: "",
+        apiKey: "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",
         model: "text-davinci-002",
         temperature: 0.7,
         maxTokens: 256,
@@ -89,7 +89,7 @@ function App() {
 
     return (
         <div id="main">
-            <h1>GPT3-Email Config</h1>
+            <h1>Wonka's Options</h1>
             <Input
                 text="API Key"
                 onChange={(n) => updateConfig("apiKey", n)}
