@@ -10,13 +10,18 @@ const handleWriteButtonClick = (e) => {
     let { originalEmail, currentEmail } = extractText();
     const prompt = designPrompt(originalEmail, currentEmail, ACTIVE_EMAIL_DIV.parentNode.querySelector(".promptbox"));
 
-    console.log(prompt)
+    let data = {
+        prompt: prompt,
+        privacy: ACTIVE_EMAIL_DIV.parentElement.querySelector(".emoji-button[category='privacy']").classList.contains("clicked")
+    }
+
+    console.log(data)
 
     ACTIVE_EMAIL_DIV.focus();
     // TODO Need to make a new animation for this
     setWriteButtonLoading(e.target);
     // This sends the prompt to the OpenAI
-    chrome.runtime.sendMessage({ prompt })
+    chrome.runtime.sendMessage(data)
 }
 
 /**
@@ -154,7 +159,7 @@ const setWriteButtonError = () => {
 };
 
 const setWriteButtonLoaded = () => {
-    const button = ACTIVE_EMAIL_DIV.parentElement.querySelector("write-button");
+    const button = ACTIVE_EMAIL_DIV.parentElement.querySelector(".write-button");
 
     // Remove all classes
     button.classList.remove("write-button-loading");
@@ -168,8 +173,10 @@ const handlePromptBoxClick = (e) => {
     if (e.target.classList.contains("emoji-button")) {
         const promptbox = ACTIVE_EMAIL_DIV.parentElement.querySelector(".promptbox");
         const buttons = promptbox.querySelectorAll(`.emoji-button[category=${e.target.getAttribute("category")}]`);
-        for (const button of buttons) {
-            button.classList.remove("clicked");
+        if (buttons.length > 1) {
+            for (const button of buttons) {
+                button.classList.remove("clicked");
+            }
         }
         e.target.classList.toggle("clicked");
     }

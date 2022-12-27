@@ -21,7 +21,7 @@ function App() {
     const [loggedIn, setLoggedIn] = useState(true);
     const [loaded, setLoaded] = useState(false);
     const [config, setConfig] = useState<ConfigState>({
-        apiKey: "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",
+        apiKey: "",
         model: "text-davinci-002",
         temperature: 0.7,
         maxTokens: 256,

@@ -28,43 +28,30 @@ const getConfig = async () => {
     };
 };
 
-const getNextTokens = async (prompt, suffix) => {
+const getNextTokens = async (prompt, suffix, parameters) => {
+    console.log(prompt,suffix)
+
     if (prompt.startsWith("testMail")){
         return {text: `Hoi,
-        Waar ben ju momenteel zoal mee bezig?
+        Waar ben je momenteel zoal mee bezig?
         Vriendelijke groeten,
         Wim`}
     }
 
     const url = "https://api.openai.com/v1/completions";
-    console.log(prompt,suffix)
-    // Get config from storage
-    const {
-        apiKey,
-        model,
-        temperature,
-        maxTokens,
-        topP,
-        frequencyPenalty,
-        presencePenalty,
-    } = await getConfig();
-
-    // Create request body
     const data = {
         prompt: prompt,
         suffix: suffix || null,
-        model: model,
-        max_tokens: maxTokens,
-        temperature: temperature,
-        top_p: topP,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
+        model: parameters.model,
+        max_tokens: parameters.maxTokens,
+        temperature: parameters.temperature,
+        top_p: parameters.topP,
+        frequency_penalty: parameters.frequencyPenalty,
+        presence_penalty: parameters.presencePenalty,
     };
-
-    // Create headers
     const headers = {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + apiKey,
+        Authorization: "Bearer " + parameters.apiKey,
     };
 
     // Make request
@@ -75,6 +62,7 @@ const getNextTokens = async (prompt, suffix) => {
     });
 
     const json = await res.json();
+    console.log(json)
 
     if (json.error) {
         return { error: json.error };
@@ -83,17 +71,49 @@ const getNextTokens = async (prompt, suffix) => {
     return { text: json.choices[0].text };
 };
 
+const logAPICall = async (prompt, completedText, parameters) => {
+    const url = "https://meet-wonka-api.azurewebsites.net/api/logRequest"
+    const data = {
+        prompt: prompt,
+        response: completedText.text,
+        parameters: parameters
+    }
+    const headers = {
+        "Content-Type": "application/json"
+    }
+
+    // Make request
+    const res = await fetch(url, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(data),
+    });
+
+    if (res.status===200) {
+        console.log("Logged the following API call to the DB:")
+        console.log(data)
+    } else {
+        console.log("Error logging API call to the DB. Status Code" + res.status)
+    }
+}
+
 chrome.runtime.onMessage.addListener(async (request) => {
+    console.log(request)
     if (request.prompt != null) {
         // Communicate with content script to get the current text
         // I think this is where we can add the variables from the buttons
         const prompt = request.prompt;
         const suffix = "";
-        const completedText = await getNextTokens(prompt, suffix);
+
+        const parameters = await getConfig();
+
+        const completedText = await getNextTokens(prompt, suffix, parameters);
 
         // Communicate with content script to update the text
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { generate: completedText });
         });
+
+        logAPICall(request.privacy? "" : prompt, request.privacy? "" : completedText, parameters);
     }
 });
