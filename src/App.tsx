@@ -22,8 +22,8 @@ function App() {
     const [loaded, setLoaded] = useState(false);
     const [config, setConfig] = useState<ConfigState>({
         apiKey: "",
-        model: "text-davinci-002",
-        temperature: 0.7,
+        model: "text-davinci-003",
+        temperature: 0.4,
         maxTokens: 256,
         topP: 1,
         frequencyPenalty: 0.0,
@@ -75,8 +75,8 @@ function App() {
             (res: ConfigState) => {
                 setConfig({
                     apiKey: res.apiKey || "",
-                    model: res.model || "text-davinci-002",
-                    temperature: res.temperature || 0.7,
+                    model: res.model || "text-davinci-003",
+                    temperature: res.temperature || 0.4,
                     maxTokens: res.maxTokens || 256,
                     topP: res.topP || 1,
                     frequencyPenalty: res.frequencyPenalty || 0.0,
