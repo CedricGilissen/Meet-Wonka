@@ -17,7 +17,7 @@ type ConfigState = {
 };
 
 function App() {
-    const [models, setModels] = useState<string[]>(["text-davinci-002"]);
+    const [models, setModels] = useState<string[]>(["text-davinci-003"]);
     const [loggedIn, setLoggedIn] = useState(true);
     const [loaded, setLoaded] = useState(false);
     const [config, setConfig] = useState<ConfigState>({
