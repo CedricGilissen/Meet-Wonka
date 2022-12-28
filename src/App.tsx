@@ -1,4 +1,3 @@
-import Input from "components/Input";
 import Select from "components/Select";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -6,8 +5,9 @@ import "styles/main.css";
 
 import Slider from "./components/Slider";
 
+const APIKEY = "";
+
 type ConfigState = {
-    apiKey: string;
     model: string;
     temperature: number;
     maxTokens: number;
@@ -21,7 +21,6 @@ function App() {
     const [loggedIn, setLoggedIn] = useState(true);
     const [loaded, setLoaded] = useState(false);
     const [config, setConfig] = useState<ConfigState>({
-        apiKey: "",
         model: "text-davinci-003",
         temperature: 0.4,
         maxTokens: 256,
@@ -42,7 +41,7 @@ function App() {
         if (loaded) {
             fetch("https://api.openai.com/v1/models", {
                 headers: {
-                    Authorization: `Bearer ${config.apiKey}`,
+                    Authorization: `Bearer ${APIKEY}`,
                 },
             })
                 .then((res) => res.json())
@@ -57,14 +56,13 @@ function App() {
                     setLoggedIn(true);
                 });
         }
-    }, [config.apiKey, loaded]);
+    }, [loaded]);
 
     useEffect(() => {
         // Load config from chrome storage
         // @ts-ignore
         chrome.storage.sync.get(
             [
-                "apiKey",
                 "model",
                 "temperature",
                 "maxTokens",
@@ -74,7 +72,6 @@ function App() {
             ],
             (res: ConfigState) => {
                 setConfig({
-                    apiKey: res.apiKey || "",
                     model: res.model || "text-davinci-003",
                     temperature: res.temperature || 0.4,
                     maxTokens: res.maxTokens || 256,
@@ -90,12 +87,6 @@ function App() {
     return (
         <div id="main">
             <h1>Wonka's Options</h1>
-            <Input
-                text="API Key"
-                onChange={(n) => updateConfig("apiKey", n)}
-                value={config.apiKey}
-                isPassword={true}
-            />
             {loggedIn && (
                 <>
                     <Select
